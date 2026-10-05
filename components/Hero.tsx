@@ -2,10 +2,11 @@
 
 import React, { useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import CarVisual from "./CarVisual";
 
-gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 interface StatItem {
   id: string;
@@ -55,33 +56,31 @@ export default function Hero() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const tl = gsap.timeline({
+        // 1. Entrance timeline on initial load
+        const loadTl = gsap.timeline({
           defaults: {
             ease: "power3.out",
           },
         });
 
-        // Headline entrance
-        tl.fromTo(
-          headlineRef.current,
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.9 }
-        )
-          // Subline entrance starts 0.15s after headline
+        loadTl
+          .fromTo(
+            headlineRef.current,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 0.9 }
+          )
           .fromTo(
             sublineRef.current,
             { opacity: 0, y: 24 },
             { opacity: 1, y: 0, duration: 0.9 },
             0.15
           )
-          // Action button entrance
           .fromTo(
             buttonRef.current,
             { opacity: 0, y: 16 },
             { opacity: 1, y: 0, duration: 0.6 },
             0.35
           )
-          // Car visual entrance
           .fromTo(
             carRef.current,
             { opacity: 0, y: 20 },
@@ -89,19 +88,58 @@ export default function Hero() {
             0.4
           );
 
-        // Stats entrance: staggered, starts 0.5s after headline
         if (statsContainerRef.current) {
-          tl.fromTo(
+          loadTl.fromTo(
             statsContainerRef.current.children,
             { opacity: 0, y: 16 },
             { opacity: 1, y: 0, duration: 0.7, stagger: 0.15 },
             0.5
           );
         }
+
+        // 2. Scroll-driven timeline pinned to hero
+        const scrollTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: "+=175%",
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // Primary motion: car translates from left to right across the hero
+        scrollTl.fromTo(
+          carRef.current,
+          { xPercent: -55 },
+          {
+            xPercent: 55,
+            ease: "none",
+            duration: 1,
+          }
+        );
+
+        // Single secondary effect: stats row fades slightly (to 0.4) as the visual passes
+        if (statsContainerRef.current) {
+          scrollTl.fromTo(
+            statsContainerRef.current,
+            { opacity: 1 },
+            {
+              opacity: 0.4,
+              ease: "none",
+              duration: 0.5,
+              yoyo: true,
+              repeat: 1,
+            },
+            0.15
+          );
+        }
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        // Immediate display without motion for reduced-motion preference
+        // Immediate static layout with no pin or scroll translation
         gsap.set(
           [
             headlineRef.current,
@@ -109,12 +147,16 @@ export default function Hero() {
             buttonRef.current,
             carRef.current,
           ],
-          { opacity: 1, y: 0 }
+          { opacity: 1, y: 0, xPercent: 0 }
         );
         if (statsContainerRef.current) {
+          gsap.set(statsContainerRef.current, { opacity: 1 });
           gsap.set(statsContainerRef.current.children, { opacity: 1, y: 0 });
         }
       });
+
+      // Refresh ScrollTrigger once after layout initialization
+      ScrollTrigger.refresh();
     },
     { scope: containerRef }
   );
@@ -185,9 +227,10 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Car Visual container */}
+      {/* Car Visual container with will-change: transform set only on moving visual */}
       <div
         ref={carRef}
+        style={{ willChange: "transform" }}
         className="mx-auto flex w-full max-w-5xl items-center justify-center py-6"
       >
         <CarVisual className="w-full" />

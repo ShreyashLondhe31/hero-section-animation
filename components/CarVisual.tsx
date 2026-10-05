@@ -20,7 +20,8 @@ export default function CarVisual({ className = "" }: CarVisualProps) {
         {/* Ground shadow plane */}
         <ellipse cx="450" cy="246" rx="420" ry="12" fill="#000000" fillOpacity="0.45" />
 
-        {/* Main Body Shell */}
+        {/* Flipped group so sports car faces right in the direction of motion */}
+        <g transform="translate(900, 0) scale(-1, 1)">
         <path
           d="M 68 215 
              C 74 210, 88 198, 102 188
@@ -193,6 +194,7 @@ export default function CarVisual({ className = "" }: CarVisualProps) {
 
         {/* Exhaust tips */}
         <ellipse cx="850" cy="226" rx="4" ry="5" fill="#374151" stroke="#9ca3af" strokeWidth="1.5" />
+        </g>
       </svg>
     </div>
   );
