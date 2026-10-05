@@ -1,9 +1,15 @@
+import Hero from "@/components/Hero";
+import ExplainerSection from "@/components/ExplainerSection";
+import Footer from "@/components/Footer";
+
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold tracking-widestHero uppercase">
-        SCROLL DRIVEN MOTION
-      </h1>
-    </main>
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <main className="flex-1">
+        <Hero />
+        <ExplainerSection />
+      </main>
+      <Footer />
+    </div>
   );
 }
