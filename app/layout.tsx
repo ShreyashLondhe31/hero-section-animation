@@ -8,8 +8,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Scroll Driven Motion",
-  description: "A precision hero section where visual motion maps directly to scroll progress.",
+  title: "Scroll Driven Motion | Precision Automotive Hero",
+  description: "A precision hero section where visual motion maps directly to scroll progress with GSAP ScrollTrigger.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+  },
 };
 
 export default function RootLayout({
